@@ -192,6 +192,8 @@ export default function App() {
 
   async function fetchProjects() {
 
+  try {
+
     const querySnapshot =
 
       await getDocs(
@@ -200,15 +202,64 @@ export default function App() {
 
     const projectsList =
 
-      querySnapshot.docs.map(doc => ({
+      await Promise.all(
 
-        id: doc.id,
+        querySnapshot.docs.map(
 
-        ...doc.data()
-      }))
+          async (projectDoc) => {
+
+            const projectData =
+
+              projectDoc.data()
+
+            let ownerImage = ""
+
+            try {
+
+              const userDoc =
+
+                await getDoc(
+
+                  doc(
+                    db,
+                    "users",
+                    projectData.ownerId
+                  )
+                )
+
+              if (userDoc.exists()) {
+
+                ownerImage =
+
+                  userDoc.data()
+                    .imageUrl || ""
+              }
+
+            } catch (error) {
+
+              console.log(error)
+            }
+
+            return {
+
+              id:
+                projectDoc.id,
+
+              ...projectData,
+
+              ownerImage
+            }
+          }
+        )
+      )
 
     setProjects(projectsList)
+
+  } catch (error) {
+
+    console.log(error)
   }
+}
 
   if (showSplash) {
 
