@@ -620,7 +620,7 @@ export default function ExplorePage({
                           src={
                             project.ownerImage ||
 
-                            "https://i.pravatar.cc/150"
+                            "https://cdn-icons-png.flaticon.com/512/149/149071.png"
                           }
 
                           alt="user"
