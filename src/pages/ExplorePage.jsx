@@ -1,6 +1,7 @@
 import {
   doc,
-  updateDoc
+  updateDoc,
+  increment
 }
 
 from "firebase/firestore"
@@ -96,6 +97,35 @@ export default function ExplorePage({
 
           likedByUsers:
             updatedUsers
+        }
+      )
+
+    } catch (error) {
+
+      console.log(error)
+    }
+  }
+
+  async function handleView(
+    project
+  ) {
+
+    try {
+
+      const projectRef =
+        doc(
+          db,
+          "projects",
+          project.id
+        )
+
+      await updateDoc(
+
+        projectRef,
+
+        {
+          views:
+            increment(1)
         }
       )
 
@@ -475,11 +505,16 @@ export default function ExplorePage({
 
                     <img
 
-                      onClick={() =>
+                      onClick={() => {
+
+                        handleView(
+                          project
+                        )
+
                         onProjectClick(
                           project
                         )
-                      }
+                      }}
 
                       src={
                         project.images?.[0]
@@ -725,11 +760,16 @@ export default function ExplorePage({
 
                     <h2
 
-                      onClick={() =>
+                      onClick={() => {
+
+                        handleView(
+                          project
+                        )
+
                         onProjectClick(
                           project
                         )
-                      }
+                      }}
 
                       style={{
                         marginTop:
@@ -804,6 +844,13 @@ export default function ExplorePage({
                         </p>
 
                         <p>
+                          👁️ {
+
+                            project.views || 0
+                          }
+                        </p>
+
+                        <p>
                           🖼️ {
 
                             project.images?.length || 0
@@ -814,11 +861,16 @@ export default function ExplorePage({
 
                       <button
 
-                        onClick={() =>
+                        onClick={() => {
+
+                          handleView(
+                            project
+                          )
+
                           onProjectClick(
                             project
                           )
-                        }
+                        }}
 
                         style={{
                           background:
