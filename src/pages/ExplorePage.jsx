@@ -1,9 +1,6 @@
 import {
   doc,
-  updateDoc,
-  increment,
-  arrayUnion,
-  arrayRemove
+  updateDoc
 }
 
 from "firebase/firestore"
@@ -55,65 +52,52 @@ export default function ExplorePage({
         user.uid
       )
 
-    try {
+    const updatedUsers =
 
-      if (alreadyLiked) {
+      [...(project.likedByUsers || [])]
 
-        await updateDoc(
+    let updatedLikes =
+      project.likes || 0
 
-          projectRef,
+    if (alreadyLiked) {
 
-          {
-            likes:
-              increment(-1),
+      const index =
 
-            likedByUsers:
-              arrayRemove(
-                user.uid
-              )
-          }
-        )
-
-        project.likes -= 1
-
-        project.likedByUsers =
-
-          project.likedByUsers.filter(
-
-            id =>
-              id !== user.uid
-          )
-
-      } else {
-
-        await updateDoc(
-
-          projectRef,
-
-          {
-            likes:
-              increment(1),
-
-            likedByUsers:
-              arrayUnion(
-                user.uid
-              )
-          }
-        )
-
-        project.likes += 1
-
-        if (
-          !project.likedByUsers
-        ) {
-
-          project.likedByUsers = []
-        }
-
-        project.likedByUsers.push(
+        updatedUsers.indexOf(
           user.uid
         )
-      }
+
+      updatedUsers.splice(
+        index,
+        1
+      )
+
+      updatedLikes--
+
+    } else {
+
+      updatedUsers.push(
+        user.uid
+      )
+
+      updatedLikes++
+    }
+
+    try {
+
+      await updateDoc(
+
+        projectRef,
+
+        {
+
+          likes:
+            updatedLikes,
+
+          likedByUsers:
+            updatedUsers
+        }
+      )
 
     } catch (error) {
 
@@ -215,132 +199,162 @@ export default function ExplorePage({
 
         </div>
 
-        {
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "14px"
+          }}
+        >
 
-          !user ?
+          <a
 
-            <button
+            href="https://drive.google.com/drive/folders/1hHTX45xBqpoP-hfjc4LHSnPBuDkfVk0Z?usp=drive_link"
 
-              onClick={login}
+            target="_blank"
 
-              style={{
-                background:
-                  "#800517",
+            style={{
+              background: "#16a34a",
+              color: "white",
+              textDecoration: "none",
+              padding: "14px 22px",
+              borderRadius: "16px",
+              fontWeight: "bold",
+              border: "none",
+              transition: "0.3s"
+            }}
+          >
+            Download App
+          </a>
 
-                color:
-                  "white",
+          {
 
-                border:
-                  "none",
-
-                padding:
-                  "14px 26px",
-
-                borderRadius:
-                  "16px",
-
-                cursor:
-                  "pointer",
-
-                fontWeight:
-                  "bold",
-
-                fontSize:
-                  "15px"
-              }}
-            >
-              Login
-            </button>
-
-            :
-
-            <div
-              style={{
-                display:
-                  "flex",
-
-                alignItems:
-                  "center",
-
-                gap: "16px"
-              }}
-            >
-
-              <img
-                src={
-                  user.photoURL
-                }
-
-                alt="profile"
-
-                style={{
-                  width:
-                    "48px",
-
-                  height:
-                    "48px",
-
-                  borderRadius:
-                    "50%",
-
-                  objectFit:
-                    "cover",
-
-                  border:
-                    "2px solid #333"
-                }}
-              />
-
-              <p
-
-                onClick={
-                  onProfile
-                }
-
-                style={{
-                  cursor:
-                    "pointer",
-
-                  fontWeight:
-                    "bold"
-                }}
-              >
-                {
-                  user.displayName
-                }
-              </p>
+            !user ?
 
               <button
 
-                onClick={
-                  logout
-                }
+                onClick={login}
 
                 style={{
                   background:
-                    "#1d1d1d",
+                    "#800517",
 
                   color:
                     "white",
 
                   border:
-                    "1px solid #2d2d2d",
+                    "none",
 
                   padding:
-                    "12px 18px",
+                    "14px 26px",
 
                   borderRadius:
-                    "14px",
+                    "16px",
 
                   cursor:
-                    "pointer"
+                    "pointer",
+
+                  fontWeight:
+                    "bold",
+
+                  fontSize:
+                    "15px"
                 }}
               >
-                Logout
+                Login
               </button>
 
-            </div>
-        }
+              :
+
+              <div
+                style={{
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap: "16px"
+                }}
+              >
+
+                <img
+                  src={
+                    user.photoURL
+                  }
+
+                  alt="profile"
+
+                  style={{
+                    width:
+                      "48px",
+
+                    height:
+                      "48px",
+
+                    borderRadius:
+                      "50%",
+
+                    objectFit:
+                      "cover",
+
+                    border:
+                      "2px solid #333"
+                  }}
+                />
+
+                <p
+
+                  onClick={
+                    onProfile
+                  }
+
+                  style={{
+                    cursor:
+                      "pointer",
+
+                    fontWeight:
+                      "bold"
+                  }}
+                >
+                  {
+                    user.displayName
+                  }
+                </p>
+
+                <button
+
+                  onClick={
+                    logout
+                  }
+
+                  style={{
+                    background:
+                      "#1d1d1d",
+
+                    color:
+                      "white",
+
+                    border:
+                      "1px solid #2d2d2d",
+
+                    padding:
+                      "12px 18px",
+
+                    borderRadius:
+                      "14px",
+
+                    cursor:
+                      "pointer"
+                  }}
+                >
+                  Logout
+                </button>
+
+              </div>
+          }
+
+        </div>
 
       </div>
 
